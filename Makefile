@@ -16,7 +16,7 @@ CC = g++
 FILES_SOURCE = src
 
 # Change this to your include folder, leave blank if you don't have one
-INCLUDE_SOURCE =
+INCLUDE_SOURCE = include
 
 # Add your flags here
 CFLAGS = -W -Wall -Wextra -std=c++17 -Wno-missing-field-initializers

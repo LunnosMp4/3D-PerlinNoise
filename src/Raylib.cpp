@@ -8,14 +8,17 @@
 #include <cmath>
 #include <iostream>
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
 constexpr int windowWidth = 800;
 constexpr int windowHeight = 600;
 constexpr int definitionWidth = windowWidth / 8;
 constexpr int definitionHeight = windowHeight / 8;
-constexpr float animationSpeed = 0.002f;
-constexpr float scale = 25.0f;
-constexpr int octaves = 2;
-constexpr float persistence = 0.2f;
+volatile float animationSpeed = 0.002f;
+volatile float scale = 25.0f;
+volatile int octaves = 2;
+volatile float persistence = 0.2f;
 
 static Color* pixels = new Color[definitionWidth * definitionHeight];
 
@@ -115,6 +118,7 @@ void RaylibPerlinNoise() {
 
     float offsetX = 0.0f;
     float offsetY = 0.0f;
+    bool isCursorEnabled = false;
 
     Image image = GenImageColor(definitionWidth, definitionHeight, BLACK);
     Texture2D texture = LoadTextureFromImage(image);
@@ -133,7 +137,19 @@ void RaylibPerlinNoise() {
     while (!WindowShouldClose()) {
         generatePerlinTexture(image, offsetX, offsetY, scale, scale, octaves, persistence);
         UpdateTexture(texture, image.data);
-        UpdateCamera(&camera, false);
+
+        if (IsKeyDown(KEY_LEFT_ALT)) {
+            if (isCursorEnabled == false) {
+                isCursorEnabled = true;
+                EnableCursor();
+            }
+        } else {
+            if (isCursorEnabled == true) {
+                isCursorEnabled = false;
+                DisableCursor();
+            }
+            UpdateCamera(&camera, false);
+        }
 
         terrainMesh = GenMeshHeightmap(image, (Vector3){ 32, 16, 32 });
         terrainModel = LoadModelFromMesh(terrainMesh);
@@ -148,7 +164,10 @@ void RaylibPerlinNoise() {
             EndMode3D();
 
             DrawTexture(texture, windowWidth - texture.width - 20, 20, WHITE);
-            DrawFPS(10, 10);
+            scale = GuiSlider({ 55, 20, 100, 20 }, "Scale", TextFormat("%f", scale), scale, 1.0f, 100.0f);
+            octaves = GuiSlider({ 55, 45, 100, 20 }, "Octaves", TextFormat("%i", octaves), octaves, 1, 6);
+            persistence = GuiSlider({ 55, 70, 100, 20 }, "Decay", TextFormat("%f", persistence), persistence, 0.0f, 1.0f);
+            animationSpeed = GuiSlider({ 55, 95, 100, 20 }, "Speed", TextFormat("%f", animationSpeed), animationSpeed, 0.0f, 0.01f);
         EndDrawing();
 
         offsetX += animationSpeed;

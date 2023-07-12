@@ -1,0 +1,4 @@
+*.o
+*.d
+perlin_noise
+.vscode
