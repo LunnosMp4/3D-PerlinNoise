@@ -37,7 +37,7 @@ The program will open a window displaying the generated Perlin noise terrain. Yo
 
 **Note:** This program uses the Raylib library, which provides a simple and easy-to-use interface for 2D and 3D graphics programming. For more information about Raylib and its features, refer to the official documentation: https://www.raylib.com/
 
-# Code Explanation
+# Code Explanation
 The program generates a Perlin noise texture, convert it to a heightmap and renders it as a 3D terrain using Raylib. Here are the main functions and their purpose:
 
 - `lerp`: Performs linear interpolation between two values.
