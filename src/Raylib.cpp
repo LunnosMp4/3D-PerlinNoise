@@ -112,6 +112,7 @@ void generatePerlinTexture(Image& image, float offsetX, float offsetY, float sca
 }
 
 void RaylibPerlinNoise() {
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(windowWidth, windowHeight, "Perlin Noise");
     SetTraceLogLevel(LOG_WARNING);
     DisableCursor();
@@ -154,13 +155,19 @@ void RaylibPerlinNoise() {
         terrainMesh = GenMeshHeightmap(image, (Vector3){ 32, 16, 32 });
         terrainModel = LoadModelFromMesh(terrainMesh);
         terrainMesh = { 0 };
+
+        Shader terrainShader = LoadShader(0, "src/shader.fs");
+        int colorLocation = GetShaderLocation(terrainShader, "color");
+        float colorValues[] = { 0.0f, 0.7f, 0.9f, 1.0f };
+        SetShaderValue(terrainShader, colorLocation, colorValues, SHADER_UNIFORM_VEC4);
+        terrainModel.materials[0].shader = terrainShader;
         terrainModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
             BeginMode3D(camera);
-                DrawModel(terrainModel, (Vector3){ -16, 0, -16 }, 1.0f, WHITE);
+                DrawModelEx(terrainModel, (Vector3){ -16, 0, -16 }, (Vector3){ 0.0f, 1.0f, 0.0f }, 0.0f, (Vector3){ 1.0f, 1.0f, 1.0f }, LIGHTGRAY);
             EndMode3D();
 
             DrawTexture(texture, windowWidth - texture.width - 20, 20, WHITE);
