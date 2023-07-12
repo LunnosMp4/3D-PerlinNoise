@@ -19,6 +19,7 @@ volatile float animationSpeed = 0.002f;
 volatile float scale = 25.0f;
 volatile int octaves = 2;
 volatile float persistence = 0.2f;
+volatile float size = 32.0f;
 
 static Color* pixels = new Color[definitionWidth * definitionHeight];
 
@@ -120,6 +121,7 @@ void RaylibPerlinNoise() {
     float offsetX = 0.0f;
     float offsetY = 0.0f;
     bool isCursorEnabled = false;
+    Color color = { 0, 200, 220, 1 };
 
     Image image = GenImageColor(definitionWidth, definitionHeight, BLACK);
     Texture2D texture = LoadTextureFromImage(image);
@@ -152,13 +154,13 @@ void RaylibPerlinNoise() {
             UpdateCamera(&camera, false);
         }
 
-        terrainMesh = GenMeshHeightmap(image, (Vector3){ 32, 16, 32 });
+        terrainMesh = GenMeshHeightmap(image, (Vector3){ size, size / 2, size });
         terrainModel = LoadModelFromMesh(terrainMesh);
         terrainMesh = { 0 };
 
         Shader terrainShader = LoadShader(0, "src/shader.fs");
         int colorLocation = GetShaderLocation(terrainShader, "color");
-        float colorValues[] = { 0.0f, 0.7f, 0.9f, 1.0f };
+        float colorValues[] = { color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f };
         SetShaderValue(terrainShader, colorLocation, colorValues, SHADER_UNIFORM_VEC4);
         terrainModel.materials[0].shader = terrainShader;
         terrainModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
@@ -167,14 +169,16 @@ void RaylibPerlinNoise() {
             ClearBackground(RAYWHITE);
 
             BeginMode3D(camera);
-                DrawModelEx(terrainModel, (Vector3){ -16, 0, -16 }, (Vector3){ 0.0f, 1.0f, 0.0f }, 0.0f, (Vector3){ 1.0f, 1.0f, 1.0f }, LIGHTGRAY);
+                DrawModelEx(terrainModel, (Vector3){ -(size / 2), 0, -(size / 2) }, (Vector3){ 0.0f, 1.0f, 0.0f }, 0.0f, (Vector3){ 1.0f, 1.0f, 1.0f }, LIGHTGRAY);
             EndMode3D();
 
-            DrawTexture(texture, windowWidth - texture.width - 20, 20, WHITE);
-            scale = GuiSlider({ 55, 20, 100, 20 }, "Scale", TextFormat("%f", scale), scale, 1.0f, 100.0f);
-            octaves = GuiSlider({ 55, 45, 100, 20 }, "Octaves", TextFormat("%i", octaves), octaves, 1, 6);
-            persistence = GuiSlider({ 55, 70, 100, 20 }, "Decay", TextFormat("%f", persistence), persistence, 0.0f, 1.0f);
-            animationSpeed = GuiSlider({ 55, 95, 100, 20 }, "Speed", TextFormat("%f", animationSpeed), animationSpeed, 0.0f, 0.01f);
+            DrawTexture(texture, 55, 20, WHITE);
+            scale = GuiSlider({ 55, 20 + (float) texture.height + 5, 100, 20 }, "Scale", TextFormat("%f", scale), scale, 1.0f, 100.0f);
+            octaves = GuiSlider({ 55, 45 + (float) texture.height + 5, 100, 20 }, "Octaves", TextFormat("%i", octaves), octaves, 1, 6);
+            persistence = GuiSlider({ 55, 70 + (float) texture.height + 5, 100, 20 }, "Decay", TextFormat("%f", persistence), persistence, 0.0f, 1.0f);
+            animationSpeed = GuiSlider({ 55, 95 + (float) texture.height + 5, 100, 20 }, "Speed", TextFormat("%f", animationSpeed), animationSpeed, 0.0f, 0.01f);
+            size = GuiSlider({ 55, 120 + (float) texture.height + 5, 100, 20 }, "Size", TextFormat("%f", size), size, 1.0f, 150.0f);
+            color = GuiColorPicker({ 55, 145 + (float) texture.height + 5, 100, 40 }, "Color", color);
         EndDrawing();
 
         offsetX += animationSpeed;
