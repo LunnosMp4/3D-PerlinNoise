@@ -4,11 +4,11 @@
 
 constexpr int windowWidth = 800;
 constexpr int windowHeight = 600;
-
-constexpr int definitionWidth = windowWidth / 4;
-constexpr int definitionHeight = windowHeight / 4;
-
+constexpr int definitionWidth = windowWidth / 8;
+constexpr int definitionHeight = windowHeight / 8;
 constexpr float animationSpeed = 0.01f;
+
+static Color* pixels = new Color[definitionWidth * definitionHeight];
 
 float lerp(float a, float b, float t) {
     return a + t * (b - a);
@@ -48,10 +48,8 @@ float perlin(float x, float y) {
 }
 
 void generatePerlinTexture(Image& image, float offsetX, float offsetY, float scaleX, float scaleY, int octaves, float persistence) {
-    static Color* pixels = new Color[definitionWidth * definitionHeight];
-
     float minNoise = 0.0f;
-    float maxNoise = 10.0f;
+    float maxNoise = 1.0f;
 
     for (int y = 0; y < definitionHeight; ++y) {
         for (int x = 0; x < definitionWidth; ++x) {
@@ -73,7 +71,7 @@ void generatePerlinTexture(Image& image, float offsetX, float offsetY, float sca
             if (noise > maxNoise) maxNoise = noise;
 
             int noiseValue = static_cast<int>((noise + 1.0f) / 2.0f * 255);
-            pixels[y * definitionWidth + x] = { (unsigned char) noiseValue, (unsigned char) noiseValue, (unsigned char) noiseValue, 255 };
+            pixels[y * definitionWidth + x] = { static_cast<unsigned char>(noiseValue), static_cast<unsigned char>(noiseValue), static_cast<unsigned char>(noiseValue), 255 };
         }
     }
 
@@ -82,12 +80,12 @@ void generatePerlinTexture(Image& image, float offsetX, float offsetY, float sca
 
 void RaylibPerlinNoise() {
     InitWindow(windowWidth, windowHeight, "Perlin Noise");
-
-    Image image = GenImageColor(definitionWidth, definitionHeight, BLACK);
+    SetTraceLogLevel(LOG_WARNING);
 
     float offsetX = 0.0f;
     float offsetY = 0.0f;
 
+    Image image = GenImageColor(definitionWidth, definitionHeight, BLACK);
     Texture2D texture = LoadTextureFromImage(image);
     UnloadImage(image);
 
@@ -108,8 +106,8 @@ void RaylibPerlinNoise() {
         UpdateCamera(&camera, CAMERA_FIRST_PERSON);
 
         terrainMesh = GenMeshHeightmap(image, (Vector3){ 16, 8, 16 });
-
         terrainModel = LoadModelFromMesh(terrainMesh);
+        terrainMesh = { 0 };
         terrainModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
         BeginDrawing();
@@ -119,6 +117,8 @@ void RaylibPerlinNoise() {
                 DrawModel(terrainModel, (Vector3){ -8, 0, -8 }, 1.0f, WHITE);
             EndMode3D();
 
+            DrawTexture(texture, 0, 0, WHITE);
+
             DrawFPS(10, 10);
 
         EndDrawing();
@@ -126,12 +126,16 @@ void RaylibPerlinNoise() {
         offsetX += animationSpeed;
         offsetY += animationSpeed;
 
-        terrainModel = { 0 };
-        terrainMesh = { 0 };
+        std::cout << "offsetX: " << offsetX << std::endl;
+        std::cout << "offsetY: " << offsetY << std::endl;
+
+        UnloadModel(terrainModel);
     }
 
-    EnableCursor();
+    UnloadMesh(terrainMesh);
     UnloadModel(terrainModel);
+    UnloadImage(image);
     UnloadTexture(texture);
+    EnableCursor();
     CloseWindow();
 }
