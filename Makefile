@@ -19,7 +19,7 @@ FILES_SOURCE = src
 INCLUDE_SOURCE = include
 
 # Add your flags here
-CFLAGS = -W -Wall -Wextra -std=c++17 -Wno-missing-field-initializers
+CFLAGS = -W -Wall -Wextra -std=c++17 -Wno-missing-field-initializers -Wno-unused-parameter -Wno-enum-compare
 
 # Add your libraries here
 LDFLAGS = -lraylib 
