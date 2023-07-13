@@ -2,6 +2,8 @@
 
 This program generates a Perlin noise terrain using the Raylib library. It allows you to interactively adjust various parameters to customize the generated terrain.
 
+![Demo Gif](https://github.com/LunnosMp4/3D-PerlinNoise/blob/master/res/perlin_noise_video.gif)
+
 # Installation
 To run the program, you need to have the Raylib library installed. Follow the instructions below to install Raylib and compile the program:
 
